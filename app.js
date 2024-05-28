@@ -72,6 +72,8 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   cors({
     origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
       "https://applestore-admin.vercel.app",
       "https://applestore-customer.vercel.app",
     ], // replace with your frontend's domain
