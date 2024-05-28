@@ -53,10 +53,14 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   store: store,
+  // cookie: {
+  //   httpOnly: true,
+  //   secure: true, // Set to true if using HTTPS
+  //   sameSite: "lax", // Ensure cookies are sent for cross-origin requests
+  // },
   cookie: {
-    httpOnly: true,
-    secure: true, // Set to true if using HTTPS
-    sameSite: "lax", // Ensure cookies are sent for cross-origin requests
+    sameSite: "none",
+    secure: true,
   },
 });
 
@@ -67,7 +71,10 @@ app.set("trust proxy", 1);
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   cors({
-    origin: true, // replace with your frontend's domain
+    origin: [
+      "https://applestore-admin.vercel.app",
+      "https://applestore-customer.vercel.app",
+    ], // replace with your frontend's domain
     credentials: true,
   })
 );
