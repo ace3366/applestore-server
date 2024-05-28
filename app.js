@@ -26,14 +26,15 @@ const store = new MongoDBStore({
   collection: "sessions",
 });
 
-const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "images");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+// const fileStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "images");
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+const fileStorage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (
@@ -55,11 +56,12 @@ const sessionMiddleware = session({
   store: store,
   // cookie: {
   //   httpOnly: true,
-  //   secure: true, // Set to true if using HTTPS
+  //   secure: false, // Set to true if using HTTPS
   //   sameSite: "lax", // Ensure cookies are sent for cross-origin requests
   // },
   cookie: {
     sameSite: "none",
+    httpOnly: true,
     secure: true,
   },
 });
@@ -76,7 +78,8 @@ app.use(
       "http://localhost:3001",
       "https://applestore-admin.vercel.app",
       "https://applestore-customer.vercel.app",
-    ], // replace with your frontend's domain
+    ],
+
     credentials: true,
   })
 );

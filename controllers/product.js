@@ -2,7 +2,31 @@ const Product = require("../models/Products");
 const Order = require("../models/Orders");
 const User = require("../models/Users");
 const { validationResult } = require("express-validator");
+// Import the functions you need from the SDKs you need
+const { initializeApp } = require("firebase/app");
 
+const {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  uploadBytesResumable,
+} = require("firebase/storage");
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyANq9C0IjVbCBP69vroBkZYsiPJO2LOVbE",
+  authDomain: "applestorestorage.firebaseapp.com",
+  projectId: "applestorestorage",
+  storageBucket: "applestorestorage.appspot.com",
+  messagingSenderId: "698267547012",
+  appId: "1:698267547012:web:25d6bed04c145eb13119d1",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const storage = getStorage();
+// Export
 exports.getAllProducts = async (req, res, next) => {
   try {
     const products = await Product.find();
@@ -137,13 +161,27 @@ exports.createProduct = async (req, res, next) => {
     if (!errors.isEmpty()) {
       return res.status(300).json({ error: errors.array() });
     }
-    const { name, price, category, long_desc, short_desc } = req.body;
+    const { name, price, category, long_desc, short_desc, count } = req.body;
+    // Nhận array image nhận được
     const images = req.files;
 
     // Chiết xuất ảnh sang dạng URL dể lưu vào DB
-    const imgPath = images.map(
-      (file) => `${process.env.SERVER_API}/${file.path}`
-    );
+    const imgPathPromises = images.map(async (file) => {
+      const storageRef = ref(
+        storage,
+        `files/${Date.now()}-${file.originalname}`
+      );
+      const metadata = {
+        contentType: file.mimetype,
+      };
+      // Lưu vào firestore
+      const snapshot = await uploadBytes(storageRef, file.buffer, metadata);
+      // Lấy link imgage để lưu vào DB
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    });
+
+    const imgPath = await Promise.all(imgPathPromises);
     const [img1, img2, img3, img4] = imgPath;
     // Lưu vào DB
     const product = await Product.create({
@@ -163,3 +201,36 @@ exports.createProduct = async (req, res, next) => {
     console.log(err);
   }
 };
+// exports.createProduct = async (req, res, next) => {
+//   try {
+//     // Báo lỗi với express-validator
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(300).json({ error: errors.array() });
+//     }
+//     const { name, price, category, long_desc, short_desc, count } = req.body;
+//     const images = req.files;
+
+//     // Chiết xuất ảnh sang dạng URL dể lưu vào DB
+//     const imgPath = images.map(
+//       (file) => `${process.env.SERVER_API}/${file.path}`
+//     );
+//     const [img1, img2, img3, img4] = imgPath;
+//     // Lưu vào DB
+//     const product = await Product.create({
+//       name,
+//       price,
+//       count,
+//       category,
+//       long_desc,
+//       short_desc,
+//       img1,
+//       img2,
+//       img3,
+//       img4,
+//     });
+//     res.status(200).json({ msg: "Product has been created" });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };

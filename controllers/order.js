@@ -8,7 +8,6 @@ const updateCounts = async (updates) => {
   try {
     for (const update of updates) {
       const { _id, count } = update;
-      console.log(_id, count);
       await Product.findByIdAndUpdate(_id, { $inc: { count: -count } });
       console.log("Count decreased successfully for document with ID:", _id);
     }
