@@ -55,13 +55,15 @@ const sessionMiddleware = session({
   store: store,
   cookie: {
     httpOnly: true,
-    secure: false, // Set to true if using HTTPS
+    secure: true, // Set to true if using HTTPS
     sameSite: "lax", // Ensure cookies are sent for cross-origin requests
   },
 });
 
 // Middleware-Config
 app.use(sessionMiddleware);
+// Trust the first proxy to get the correct protocol (https)
+app.set("trust proxy", 1);
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   cors({
