@@ -5,6 +5,10 @@ const router = express.Router();
 router.get("/get-products", productController.getAllProducts);
 
 router.get("/get-product/:productId", productController.getProduct);
+router.get(
+  "/get-products-category/:category",
+  productController.getProductCategory
+);
 
 router.get(
   "/get-related-product/:category",

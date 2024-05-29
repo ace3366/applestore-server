@@ -45,6 +45,15 @@ exports.getProduct = async (req, res, next) => {
     console.log(err);
   }
 };
+exports.getProductCategory = async (req, res, next) => {
+  try {
+    const category = req.params.category;
+    const products = await Product.find({ category });
+    res.status(200).json({ products });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 exports.getRelatedProduct = async (req, res, next) => {
   try {
