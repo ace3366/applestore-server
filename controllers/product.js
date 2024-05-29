@@ -47,7 +47,10 @@ exports.getProduct = async (req, res, next) => {
 };
 exports.getProductCategory = async (req, res, next) => {
   try {
-    const category = req.params.category;
+    let category = req.params.category;
+    if (category === "all") {
+      category = "";
+    }
     const products = await Product.find({ category });
     res.status(200).json({ products });
   } catch (err) {
